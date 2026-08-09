@@ -1,0 +1,1 @@
+VibeTrails web video assets live in this folder.
