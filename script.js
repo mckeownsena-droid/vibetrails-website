@@ -5,3 +5,25 @@ if(menuBtn&&mobileMenu){menuBtn.addEventListener('click',()=>{const open=mobileM
 document.querySelectorAll('.faq-q').forEach(btn=>btn.addEventListener('click',()=>{const item=btn.closest('.faq-item');const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(x=>x.classList.remove('open'));if(!wasOpen)item.classList.add('open');btn.setAttribute('aria-expanded',String(!wasOpen));}));
 const bookingForm=document.querySelector('#bookingForm');
 if(bookingForm){bookingForm.addEventListener('submit',e=>{e.preventDefault();const f=new FormData(bookingForm);const text=[`Hi VibeTrails, I'd like to make an adventure enquiry.`,``,`Name: ${f.get('name')}`,`Phone: ${f.get('phone')}`,`Adventure: ${f.get('adventure')}`,`People: ${f.get('people')||'1'}`,`Preferred date: ${f.get('date')||'Flexible'}`,`Pickup area: ${f.get('pickup')||'Not specified'}`,``,`Message: ${f.get('message')||'Please send me details of the next available trip.'}`].join('\n');window.open('https://wa.me/233593132204?text='+encodeURIComponent(text),'_blank','noopener');const box=document.querySelector('.success-box');if(box)box.style.display='block';});}
+
+const eventCountdown=document.querySelector('#eventCountdown');
+if(eventCountdown){
+  const eventTime=Date.UTC(2026,8,21,5,0,0); // 21 September 2026, 5:00 AM Ghana time (GMT)
+  const unit=(n,singular,plural)=>`${n} ${n===1?singular:plural}`;
+  const updateCountdown=()=>{
+    const distance=eventTime-Date.now();
+    if(distance<=0){
+      eventCountdown.textContent='Adventure day is here!';
+      return false;
+    }
+    const totalSeconds=Math.floor(distance/1000);
+    const days=Math.floor(totalSeconds/86400);
+    const hours=Math.floor((totalSeconds%86400)/3600);
+    const minutes=Math.floor((totalSeconds%3600)/60);
+    const seconds=totalSeconds%60;
+    eventCountdown.textContent=`${unit(days,'day','days')}, ${unit(hours,'hour','hours')}, ${unit(minutes,'minute','minutes')}, ${unit(seconds,'second','seconds')} to the adventure`;
+    return true;
+  };
+  updateCountdown();
+  const countdownTimer=setInterval(()=>{if(!updateCountdown())clearInterval(countdownTimer);},1000);
+}
