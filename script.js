@@ -25,37 +25,6 @@ if(eventCountdown){
   const countdownTimer=setInterval(()=>{if(!updateCountdown())clearInterval(countdownTimer);},1000);
 }
 
-// Real VibeTrails video moments. The videos are stored as compact base64 text assets
-// so they can be delivered reliably through the existing static-site setup.
-const b64ToBlobUrl=async path=>{
-  const res=await fetch(path,{cache:'force-cache'});
-  if(!res.ok)throw new Error(`Unable to load ${path}`);
-  const b64=(await res.text()).trim();
-  const binary=atob(b64);
-  const bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  return URL.createObjectURL(new Blob([bytes],{type:'video/mp4'}));
-};
-
-const story=document.querySelector('.story-split');
-if(story){
-  const section=document.createElement('section');
-  section.className='video-moments';
-  section.innerHTML=`<div class="wrap"><div class="video-moments-head"><div><p class="eyebrow">Real moments</p><h2 class="display">See the vibe.<br><span>Feel the trail.</span></h2></div><p>Real clips from VibeTrails experiences — the places, the people and the moments that make every trip worth remembering.</p></div><div class="video-moments-grid"><article class="video-card"><div class="video-shell"><video muted loop playsinline autoplay preload="metadata" poster="assets/waterfall.jpg" data-b64-video="assets/videos/waterfall-preview.b64"></video><span class="video-badge">Explore</span></div><h3>Chase the falls</h3><p>Nature feels different when you are right inside the story.</p></article><article class="video-card"><div class="video-shell"><video muted loop playsinline autoplay preload="metadata" poster="assets/community-games.jpg" data-b64-video="assets/videos/community-preview.b64"></video><span class="video-badge">Connect</span></div><h3>Come for the people</h3><p>Good energy, shared moments and memories made together.</p></article></div></div>`;
-  story.insertAdjacentElement('afterend',section);
-  const style=document.createElement('style');
-  style.textContent=`.video-moments{padding:110px 0;background:#fff}.video-moments-head{display:flex;justify-content:space-between;align-items:end;gap:50px;margin-bottom:42px}.video-moments-head h2{font-size:clamp(48px,5.8vw,78px)}.video-moments-head h2 span{color:#617d08;font-weight:500}.video-moments-head>p{max-width:430px;color:#667075;line-height:1.75;margin:0}.video-moments-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.video-card{margin:0}.video-shell{position:relative;overflow:hidden;border-radius:10px;background:#071c2b;aspect-ratio:4/5}.video-shell video{width:100%;height:100%;display:block;object-fit:cover}.video-badge{position:absolute;left:16px;top:16px;background:#b8ef13;color:#031c31;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.video-card h3{font-family:Arial,sans-serif;font-size:26px;letter-spacing:-.04em;margin:16px 0 7px}.video-card p{margin:0;color:#667075;line-height:1.65;font-size:14px}@media(max-width:600px){.video-moments{padding:68px 0}.video-moments-head{display:block;margin-bottom:28px}.video-moments-head h2{font-size:40px;line-height:.96}.video-moments-head>p{margin-top:18px;font-size:16px;line-height:1.65}.video-moments-grid{grid-template-columns:1fr 1fr;gap:10px}.video-shell{border-radius:8px}.video-card h3{font-size:18px;margin:11px 0 5px}.video-card p{font-size:12px;line-height:1.5}.video-badge{left:10px;top:10px;padding:6px 8px;font-size:8px}}`;
-  document.head.appendChild(style);
-  section.querySelectorAll('video[data-b64-video]').forEach(async video=>{
-    try{
-      video.src=await b64ToBlobUrl(video.dataset.b64Video);
-      const tryPlay=()=>video.play().catch(()=>{});
-      video.addEventListener('canplay',tryPlay,{once:true});
-      document.addEventListener('visibilitychange',()=>{if(!document.hidden)tryPlay();});
-    }catch(err){console.warn('VibeTrails video unavailable:',err);}
-  });
-}
-
 // Gallery lightbox: tap any gallery photo to open it full-screen and swipe through the set.
 const galleryFigures=[...document.querySelectorAll('.gallery-grid figure')];
 if(galleryFigures.length){
