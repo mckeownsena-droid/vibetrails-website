@@ -5,11 +5,6 @@
   },
   "rewrites": [
     {
-      "source": "/(.*)",
-      "has": [{"type":"host","value":"vibetrails-operations.vercel.app"}],
-      "destination": "/operations/$1"
-    },
-    {
       "source": "/",
       "has": [{"type":"host","value":"vibetrails-operations.vercel.app"}],
       "destination": "/operations/index.html"
