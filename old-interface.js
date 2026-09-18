@@ -13,8 +13,6 @@
     }).observe(sideRole, { childList: true });
   }
 
-  const budgetedExpenses = () => E().reduce((total, expense) => total + (+expense.budgeted_amount || 0), 0);
-
   function dashboardBookingTable(list) {
     const rows = list.map(booking => {
       const trip = trips.find(item => item.id === booking.trip_id);
@@ -24,15 +22,10 @@
         <td>${money(booking.amount_paid)} / ${money(booking.amount_due)}</td>
         <td><span class="pill ${booking.payment_status === 'paid' ? '' : 'yellow'}">${esc(booking.payment_status)}</span></td>
         <td>${esc(booking.pickup_point || '—')}</td>
-        <td class="actions">
-          <button class="btn alt small" onclick="editBooking('${booking.id}')">Edit</button>
-          <button class="btn alt small" onclick="recordPayment('${booking.id}')">Payment</button>
-          <button class="btn small danger" onclick="deleteBooking('${booking.id}')">Delete</button>
-        </td>
       </tr>`;
     }).join('');
 
-    return `<div class="tablewrap dashboard-table"><table><tr><th>Passenger</th><th>Trip</th><th>Paid / Due</th><th>Status</th><th>Pickup</th><th>Actions</th></tr>${rows || '<tr><td colspan="6" class="empty">No bookings yet.</td></tr>'}</table></div>`;
+    return `<div class="tablewrap dashboard-table"><table><tr><th>Passenger</th><th>Trip</th><th>Paid / Due</th><th>Status</th><th>Pickup</th></tr>${rows || '<tr><td colspan="5" class="empty">No bookings yet.</td></tr>'}</table></div>`;
   }
 
   function bookingPageTable(list) {
@@ -61,19 +54,26 @@
     }
 
     const metrics = M();
-    const budget = budgetedExpenses();
-    const projectedProfit = metrics.due - budget;
-    const totalBookings = B().reduce((total, booking) => total + (+booking.seats || 0), 0);
+    const projectedProfit = metrics.due - metrics.cost;
+    const totalBookings = B().length;
+    const collectionRate = metrics.due ? Math.min(100, (metrics.paid / metrics.due) * 100) : 0;
+    const financialInsight = profile.role === 'owner' ? `<div class="dashboard-insight">
+      <div class="progress-copy"><span>Revenue progress</span><b>${collectionRate.toFixed(0)}% collected</b><small>${money(metrics.paid)} of ${money(metrics.due)}</small></div>
+      <div class="progress-track" aria-label="${collectionRate.toFixed(0)}% of expected revenue collected"><span style="width:${collectionRate}%"></span></div>
+      <div class="insight-stat"><span>Outstanding</span><b>${money(metrics.out)}</b></div>
+      <div class="insight-stat"><span>Net Profit</span><b>${money(metrics.profit)}</b></div>
+    </div>` : '';
 
     $('#content').innerHTML = `<div class="kpis old-dashboard-kpis">
       <div class="kpi"><span>Trips</span><b>${trips.length}</b></div>
       <div class="kpi"><span>Bookings</span><b>${totalBookings}</b></div>
       <div class="kpi"><span>Cash Collected</span><b>${money(metrics.paid)}</b></div>
-      <div class="kpi"><span>${profile.role === 'owner' ? 'Budgeted Expenses' : 'New Enquiries'}</span><b>${profile.role === 'owner' ? money(budget) : enquiries.filter(item => item.status === 'new').length}</b></div>
+      <div class="kpi"><span>${profile.role === 'owner' ? 'Actual Expenses' : 'New Enquiries'}</span><b>${profile.role === 'owner' ? money(metrics.cost) : enquiries.filter(item => item.status === 'new').length}</b></div>
       <div class="kpi"><span>${profile.role === 'owner' ? 'Projected Profit' : 'Checked In'}</span><b>${profile.role === 'owner' ? money(projectedProfit) : B().filter(booking => booking.checked_in).length}</b></div>
     </div>
+    ${financialInsight}
     <div class="rowhead dashboard-rowhead"><b>Recent bookings</b><button class="btn small" onclick="addBooking()">Add booking</button></div>
-    ${dashboardBookingTable(B().slice(0, 8))}`;
+    ${dashboardBookingTable(B().slice(0, 5))}`;
   };
 
   bookingView = function () {
