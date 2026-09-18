@@ -5,6 +5,11 @@
   },
   "routes": [
     {
+      "src": "^/vibetrails\\.html$",
+      "dest": "/",
+      "status": 308
+    },
+    {
       "src": "^/$",
       "has": [{"type":"host","value":"vibetrails-operations\\.vercel\\.app"}],
       "dest": "/operations/index.html"
