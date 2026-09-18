@@ -118,6 +118,15 @@
     await load();
   };
 
+  const modalStyle = document.createElement('style');
+  modalStyle.textContent = `.modal{position:relative}.modal h2{padding-right:46px}.modal-close{position:absolute;top:14px;right:14px;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:#f4f7f9;color:#31465a;font-size:25px;line-height:1;cursor:pointer;transition:background .15s,color .15s,transform .15s}.modal-close:hover{background:#e8eff4;color:var(--ink);transform:scale(1.04)}.modal-close:focus-visible{outline:3px solid #1477ff55;outline-offset:2px}`;
+  document.head.appendChild(modalStyle);
+
+  const originalModal = modal;
+  modal = function (content, callback) {
+    originalModal(`<button type="button" class="modal-close" aria-label="Close dialog" title="Close" onclick="closeM()">&times;</button>${content}`, callback);
+  };
+
   const originalRender = render;
   render = function () {
     originalRender();
