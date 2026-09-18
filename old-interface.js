@@ -35,6 +35,26 @@
     return `<div class="tablewrap dashboard-table"><table><tr><th>Passenger</th><th>Trip</th><th>Paid / Due</th><th>Status</th><th>Pickup</th><th>Actions</th></tr>${rows || '<tr><td colspan="6" class="empty">No bookings yet.</td></tr>'}</table></div>`;
   }
 
+  function bookingPageTable(list) {
+    const rows = list.map(booking => {
+      const trip = trips.find(item => item.id === booking.trip_id);
+      return `<tr>
+        <td><b>${esc(booking.customer_name)}</b><div class="muted">${esc(booking.booking_reference || '')} · ${esc(booking.phone || '')}</div></td>
+        <td>${esc(trip?.name || '—')}</td>
+        <td class="money">${money(booking.amount_paid)} / ${money(booking.amount_due)}</td>
+        <td><span class="pill ${booking.payment_status === 'paid' ? '' : 'yellow'}">${esc(booking.payment_status)}</span></td>
+        <td>${esc(booking.pickup_point || '—')}</td>
+        <td class="actions">
+          <button class="btn alt small" onclick="editBooking('${booking.id}')">Edit</button>
+          <button class="btn alt small" onclick="recordPayment('${booking.id}')">Payment</button>
+          <button class="btn small danger" onclick="deleteBooking('${booking.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="tablewrap dashboard-table"><table><tr><th>Passenger</th><th>Trip</th><th>Paid / Due</th><th>Status</th><th>Pickup</th><th>Actions</th></tr>${rows || '<tr><td colspan="6" class="empty">No bookings yet.</td></tr>'}</table></div>`;
+  }
+
   dash = function () {
     if (!T()) {
       $('#content').innerHTML = `<div class="card empty">No trip yet.${profile.role === 'owner' ? ' Create the first trip from Trips.' : ''}</div>`;
@@ -55,6 +75,10 @@
     </div>
     <div class="rowhead dashboard-rowhead"><b>Recent bookings</b><button class="btn small" onclick="addBooking()">Add booking</button></div>
     ${dashboardBookingTable(B().slice(0, 8))}`;
+  };
+
+  bookingView = function () {
+    $('#content').innerHTML = `<div class="rowhead"><b>${esc(T()?.name || 'Bookings')}</b>${T() ? '<button class="btn small" onclick="addBooking()">Add booking</button>' : ''}</div>${bookingPageTable(B())}`;
   };
 
   window.editBooking = id => {
