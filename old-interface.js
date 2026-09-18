@@ -46,7 +46,6 @@
         <td>${esc(booking.pickup_point || '—')}</td>
         <td class="actions">
           <button class="btn alt small" onclick="editBooking('${booking.id}')">Edit</button>
-          <button class="btn alt small" onclick="recordPayment('${booking.id}')">Payment</button>
           <button class="btn small danger" onclick="deleteBooking('${booking.id}')">Delete</button>
         </td>
       </tr>`;
@@ -88,20 +87,19 @@
       <div class="field"><label>Customer name</label><input id="editBookingName" required value="${esc(booking.customer_name)}"></div>
       <div class="form2"><div class="field"><label>Phone</label><input id="editBookingPhone" value="${esc(booking.phone || '')}"></div><div class="field"><label>Seats</label><input id="editBookingSeats" type="number" min="1" value="${+booking.seats || 1}"></div></div>
       <div class="field"><label>Pickup point</label><input id="editBookingPickup" value="${esc(booking.pickup_point || '')}"></div>
-      <div class="form2"><div class="field"><label>Amount due</label><input id="editBookingDue" type="number" min="0" step="0.01" value="${+booking.amount_due || 0}"></div><div class="field"><label>Amount paid</label><input id="editBookingPaid" type="number" min="0" step="0.01" value="${+booking.amount_paid || 0}"></div></div>
+      <div class="field"><label>Amount due</label><input id="editBookingDue" type="number" min="0" step="0.01" value="${+booking.amount_due || 0}"></div>
       <button class="btn">Save changes</button>
     </form>`, () => {
       $('#editBookingForm').onsubmit = async event => {
         event.preventDefault();
         const due = +$('#editBookingDue').value;
-        const paid = +$('#editBookingPaid').value;
+        const paid = +booking.amount_paid || 0;
         const result = await sb.from('bookings').update({
           customer_name: $('#editBookingName').value,
           phone: $('#editBookingPhone').value,
           seats: +$('#editBookingSeats').value,
           pickup_point: $('#editBookingPickup').value,
           amount_due: due,
-          amount_paid: paid,
           payment_status: paid <= 0 ? 'unpaid' : paid >= due ? 'paid' : 'part-paid'
         }).eq('id', id);
         if (result.error) return alert(result.error.message);
